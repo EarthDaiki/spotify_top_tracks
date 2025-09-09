@@ -1,5 +1,4 @@
 import json
-from datetime import date
 
 class PlaylistManager:
 
@@ -16,17 +15,6 @@ class PlaylistManager:
         '''
         data[username]["artist_top_tracks_uris"][term] = playlist_uri
         return data
-
-    def save_playlist_uris(self, data):
-        '''
-        Save playlist uris (short, mid, and long terms) in a json file
-        '''
-        try:
-            with open("Lambda\playlists_info.json", "w", encoding="utf-8") as f:
-                json.dump(data, f, indent=4, ensure_ascii=False)
-            print("uris data is saved.")
-        except Exception as e:
-            print("uris data was not saved.", e)
 
     def get_songs_uri(self, sp, playlist_uri):
         '''
@@ -46,12 +34,11 @@ class PlaylistManager:
         results = sp.current_user_playlists()
         return results
 
-    def make_playlist(self, sp, term, msg):
+    def make_playlist(self, sp, name, public=False, collaborative=False, description=None):
         '''
         make a term playlist
         '''
-        today = date.today()
-        new_playlist = sp.user_playlist_create(user=sp.me()['id'], name=f"{msg} {term}", public=False, collaborative=False, description=f'my {term} playlist on {today}')
+        new_playlist = sp.user_playlist_create(user=sp.me()['id'], name=name, public=public, collaborative=collaborative, description=description)
         return new_playlist
 
     def delete_all_songs(self, sp, playlist_uri, prev_track_uris):
@@ -63,3 +50,9 @@ class PlaylistManager:
 
     def add_to_playlist(self, sp, track_uris, playlist_uri):
         sp.playlist_add_items(playlist_id=playlist_uri, items=track_uris)
+
+    def change_playlist_details(self, sp, playlist_uri, name=None, public=None, collaborative=None, description=None):
+        '''
+        change playlist details
+        '''
+        sp.playlist_change_details(playlist_id=playlist_uri, name=name, public=public, collaborative=collaborative, description=description)
